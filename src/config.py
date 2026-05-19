@@ -8,8 +8,10 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-# Đường dẫn tuyệt đối đến file SQLite
-_SQLITE_PATH = os.path.join(basedir, "instance", "lucky_house.db")
+# Đường dẫn tuyệt đối đến file SQLite (tạo thư mục instance luôn)
+_INSTANCE_DIR = os.path.join(basedir, "instance")
+os.makedirs(_INSTANCE_DIR, exist_ok=True)
+_SQLITE_PATH = os.path.join(_INSTANCE_DIR, "lucky_house.db")
 _DEFAULT_DB = f"sqlite:///{_SQLITE_PATH}"
 
 
