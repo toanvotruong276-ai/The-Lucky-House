@@ -28,7 +28,11 @@ def create_app(config_name=None):
     _register_filters(app)
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            print(f"[OK] Database ready: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
+        except Exception as e:
+            print(f"[WARN] db.create_all() failed: {e}")
 
     return app
 
