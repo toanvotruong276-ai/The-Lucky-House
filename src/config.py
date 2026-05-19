@@ -18,17 +18,26 @@ _DEFAULT_DB = f"sqlite:///{_SQLITE_PATH}"
 def _resolve_db_uri() -> str:
     """Xử lý DATABASE_URL từ .env, tự chuyển đường dẫn tương đối thành tuyệt đối."""
     uri = os.getenv("DATABASE_URL", "").strip()
+    print(f"[CONFIG] Raw DATABASE_URL: '{uri[:30]}...' (len={len(uri)})" if uri else "[CONFIG] DATABASE_URL is empty, using SQLite")
+
     if not uri:
+        print(f"[CONFIG] Using default SQLite: {_DEFAULT_DB}")
         return _DEFAULT_DB
+
     # Render.com dùng 'postgres://' nhưng SQLAlchemy 2.x yêu cầu 'postgresql://'
     if uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://", 1)
+        print(f"[CONFIG] Converted postgres:// -> postgresql://")
+
     # Nếu là sqlite với đường dẫn tương đối, chuyển thành tuyệt đối
     if uri.startswith("sqlite:///") and not os.path.isabs(uri[10:]):
         abs_path = os.path.join(basedir, uri[10:])
-        # Tạo thư mục cha nếu chưa tồn tại
         os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-        return f"sqlite:///{abs_path}"
+        result = f"sqlite:///{abs_path}"
+        print(f"[CONFIG] Resolved SQLite path: {result}")
+        return result
+
+    print(f"[CONFIG] Final DB URI scheme: {uri.split('://')[0] if '://' in uri else 'UNKNOWN'}")
     return uri
 
 
