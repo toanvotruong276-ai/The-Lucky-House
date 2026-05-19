@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Nhà số {{ property.house_number }} - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Nhà số {{ property.house_number }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <div>
+        <span class="text-muted"><i class="bi bi-geo-alt"></i> {{ property.address }}</span>
+        <span class="badge badge-info" style="margin-left:8px;">{{ property.num_floors }} lầu</span>
+        {% if property.has_basement %}<span class="badge badge-secondary">Có hầm</span>{% endif %}
+    </div>
+    <a href="{{ url_for('properties.edit', id=property.id) }}" class="btn btn-outline"><i class="bi bi-pencil"></i> Sửa thông tin</a>
+</div>
+
+{% for floor in floors %}
+<div class="card mb-16" style="margin-bottom:16px;">
+    <div class="card-header">
+        <h2>
+            {% if floor.floor_order < 0 %}
+                <i class="bi bi-arrow-down-circle"></i>
+            {% elif floor.floor_order == 0 %}
+                <i class="bi bi-house"></i>
+            {% else %}
+                <i class="bi bi-layers"></i>
+            {% endif %}
+            {{ floor.floor_name }}
+        </h2>
+        <span class="text-sm text-muted">{{ floor.rooms.count() }} phòng</span>
+    </div>
+    <div class="card-body">
+        <div class="d-flex gap-16" style="flex-wrap:wrap;">
+            {% for room in floor.rooms.order_by("room_label").all() %}
+            <div class="room-card {{ room.status }}" style="min-width:200px;flex:1;">
+                <div class="room-number">Phòng {{ room.room_label }}</div>
+                <div><span class="badge badge-{{ room.status_color }}">{{ room.status_label }}</span></div>
+                <div class="room-price" style="margin-top:6px;">{{ room.base_price | currency }}</div>
+                {% if room.current_tenant %}
+                <div class="text-sm" style="margin-top:4px;color:var(--primary);">
+                    <i class="bi bi-person"></i> {{ room.current_tenant.full_name }}
+                </div>
+                {% endif %}
+                <div class="text-sm text-muted">{{ room.area }} m² | Tối đa {{ room.max_occupants }} người</div>
+                <div class="d-flex gap-8 mt-8" style="justify-content:center;">
+                    <a href="{{ url_for('rooms.edit', id=room.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

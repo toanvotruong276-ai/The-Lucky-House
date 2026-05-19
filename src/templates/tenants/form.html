@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Sửa' if tenant else 'Thêm' }} khách thuê - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}{{ 'Sửa khách thuê' if tenant else 'Thêm khách thuê mới' }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:700px;">
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Họ tên *</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ tenant.full_name if tenant else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại *</label>
+                    <input type="text" name="phone" class="form-control" value="{{ tenant.phone if tenant else '' }}" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">CCCD/CMND</label>
+                    <input type="text" name="id_card" class="form-control" value="{{ tenant.id_card if tenant else '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ tenant.email if tenant else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Ngày sinh</label>
+                    <input type="date" name="date_of_birth" class="form-control" value="{{ tenant.date_of_birth.strftime('%Y-%m-%d') if tenant and tenant.date_of_birth else '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nghề nghiệp</label>
+                    <input type="text" name="occupation" class="form-control" value="{{ tenant.occupation if tenant else '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quê quán</label>
+                <input type="text" name="hometown" class="form-control" value="{{ tenant.hometown if tenant else '' }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ghi chú</label>
+                <textarea name="notes" class="form-control">{{ tenant.notes if tenant else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-8">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {{ 'Cập nhật' if tenant else 'Thêm mới' }}</button>
+                <a href="{{ url_for('tenants.index') }}" class="btn btn-outline">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

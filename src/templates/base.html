@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}THE LUCKY HOUSE{% endblock %}</title>
+    <meta name="description" content="Hệ thống quản lý nhà cho thuê THE LUCKY HOUSE">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🏠</div>
+            <div>
+                <div class="brand-text">THE LUCKY HOUSE</div>
+                <div class="brand-sub">Quản lý nhà cho thuê</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Tổng quan</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                        <i class="bi bi-grid-1x2-fill nav-icon"></i> Dashboard
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-label">Quản lý</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li class="nav-item">
+                    <a href="{{ url_for('properties.index') }}" class="nav-link {% if 'properties' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-houses nav-icon"></i> Nhà
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('rooms.index') }}" class="nav-link {% if 'rooms' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-door-open nav-icon"></i> Phòng
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('tenants.index') }}" class="nav-link {% if 'tenants' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-people nav-icon"></i> Khách thuê
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('contracts.index') }}" class="nav-link {% if 'contracts' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-file-earmark-text nav-icon"></i> Hợp đồng
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-label">Tài chính</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li class="nav-item">
+                    <a href="{{ url_for('invoices.index') }}" class="nav-link {% if 'invoices' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-receipt nav-icon"></i> Hóa đơn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('services.index') }}" class="nav-link {% if 'services' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-gear nav-icon"></i> Dịch vụ
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-label">Khác</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li class="nav-item">
+                    <a href="{{ url_for('maintenance.index') }}" class="nav-link {% if 'maintenance' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-tools nav-icon"></i> Bảo trì
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('reports.index') }}" class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-bar-chart-line nav-icon"></i> Báo cáo
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="topbar">
+            <div class="d-flex align-center gap-12">
+                <button id="sidebar-toggle" class="btn btn-icon btn-outline" style="display:none;">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="user-menu d-flex align-center gap-12">
+                <div style="text-align:right;">
+                    <div class="user-name">{{ current_user.full_name }}</div>
+                    <div class="user-role">{{ current_user.role | capitalize }}</div>
+                </div>
+                <div class="user-avatar">{{ current_user.full_name[0] | upper }}</div>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline" title="Đăng xuất">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

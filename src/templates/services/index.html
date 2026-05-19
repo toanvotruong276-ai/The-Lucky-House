@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dịch vụ - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý dịch vụ{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <div></div>
+    <a href="{{ url_for('services.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm dịch vụ</a>
+</div>
+<div class="card">
+    <div class="card-body table-wrapper">
+        {% if services %}
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Tên dịch vụ</th><th>Đơn vị</th><th>Đơn giá</th><th>Loại tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            {% for s in services %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>{{ s.unit or '—' }}</td>
+                <td>{{ s.unit_price | currency }}</td>
+                <td><span class="badge badge-{% if s.calc_type == 'per_unit' %}info{% else %}secondary{% endif %}">{{ s.calc_type_label }}</span></td>
+                <td><span class="badge badge-{% if s.is_active %}success{% else %}secondary{% endif %}">{% if s.is_active %}Hoạt động{% else %}Tắt{% endif %}</span></td>
+                <td class="d-flex gap-8">
+                    <a href="{{ url_for('services.edit', id=s.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="{{ url_for('services.delete', id=s.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger btn-delete"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-gear"></i><p>Chưa có dịch vụ nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

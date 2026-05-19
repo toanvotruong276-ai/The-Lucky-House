@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Quản lý bảo trì - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý bảo trì{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <form method="GET" class="d-flex gap-8">
+        <select name="status" class="form-control" style="width:180px;" onchange="this.form.submit()">
+            <option value="">Tất cả</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Chờ xử lý</option>
+            <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>Đang xử lý</option>
+            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Hoàn thành</option>
+        </select>
+    </form>
+    <a href="{{ url_for('maintenance.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tạo yêu cầu</a>
+</div>
+<div class="card">
+    <div class="card-body table-wrapper">
+        {% if requests %}
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Tiêu đề</th><th>Phòng</th><th>Mức độ</th><th>Trạng thái</th><th>Chi phí</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td><strong>{{ r.title }}</strong></td>
+                <td>{{ r.room.full_name }}</td>
+                <td><span class="badge badge-{{ r.priority_color }}">{{ r.priority_label }}</span></td>
+                <td><span class="badge badge-{{ r.status_color }}">{{ r.status_label }}</span></td>
+                <td>{{ r.cost | currency }}</td>
+                <td>{{ r.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('maintenance.edit', id=r.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-tools"></i><p>Không có yêu cầu bảo trì nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

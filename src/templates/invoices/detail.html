@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Hóa đơn #{{ invoice.id }} - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Chi tiết hóa đơn #{{ invoice.id }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:800px;">
+    <div class="card-header">
+        <h2>{{ invoice.period_label }} - {{ invoice.contract.room.full_name }}</h2>
+        <span class="badge badge-{{ invoice.status_color }}">{{ invoice.status_label }}</span>
+    </div>
+    <div class="card-body">
+        <div class="form-row mb-16">
+            <div><strong>Khách thuê:</strong> {{ invoice.contract.tenant.full_name }}</div>
+            <div><strong>SĐT:</strong> {{ invoice.contract.tenant.phone }}</div>
+        </div>
+        <table class="data-table mb-16">
+            <thead><tr><th>Khoản mục</th><th>Chi tiết</th><th style="text-align:right;">Thành tiền</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Tiền phòng</strong></td><td>-</td><td style="text-align:right;">{{ invoice.room_charge | currency }}</td></tr>
+                {% for d in invoice.details.all() %}
+                <tr>
+                    <td>{{ d.service.name }}</td>
+                    <td>{% if d.service.calc_type == 'per_unit' %}{{ d.old_reading }} → {{ d.new_reading }} ({{ d.quantity }} {{ d.service.unit }}){% else %}{{ d.quantity }} {{ d.service.unit }}{% endif %}</td>
+                    <td style="text-align:right;">{{ d.amount | currency }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="font-weight:700;font-size:15px;">
+                    <td colspan="2">TỔNG CỘNG</td>
+                    <td style="text-align:right;color:var(--primary);">{{ invoice.total_amount | currency }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="d-flex gap-8">
+            {% if invoice.status == 'pending' %}
+            <form method="POST" action="{{ url_for('invoices.pay', id=invoice.id) }}">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Xác nhận thanh toán</button>
+            </form>
+            {% endif %}
+            <a href="{{ url_for('invoices.index') }}" class="btn btn-outline">← Quay lại</a>
+            <form method="POST" action="{{ url_for('invoices.delete', id=invoice.id) }}" style="margin-left:auto;">
+                <button type="submit" class="btn btn-danger btn-delete"><i class="bi bi-trash"></i> Xóa</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

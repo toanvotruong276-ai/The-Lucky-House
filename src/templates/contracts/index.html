@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Hợp đồng - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý hợp đồng{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <form method="GET" class="d-flex gap-8">
+        <select name="status" class="form-control" style="width:180px;" onchange="this.form.submit()">
+            <option value="">Tất cả</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Đang hiệu lực</option>
+            <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Hết hạn</option>
+            <option value="terminated" {% if status_filter == 'terminated' %}selected{% endif %}>Đã chấm dứt</option>
+        </select>
+    </form>
+    <a href="{{ url_for('contracts.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tạo hợp đồng</a>
+</div>
+<div class="card">
+    <div class="card-body table-wrapper">
+        {% if contracts %}
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Phòng</th><th>Khách thuê</th><th>Bắt đầu</th><th>Kết thúc</th><th>Tiền thuê</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            {% for c in contracts %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td><strong>{{ c.room.full_name }}</strong></td>
+                <td>{{ c.tenant.full_name }}</td>
+                <td>{{ c.start_date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ c.end_date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ c.monthly_rent | currency }}</td>
+                <td><span class="badge badge-{{ c.status_color }}">{{ c.status_label }}</span>
+                    {% if c.is_expiring_soon %}<span class="badge badge-warning" style="margin-left:4px;">{{ c.days_remaining }}d</span>{% endif %}
+                </td>
+                <td class="d-flex gap-8">
+                    <a href="{{ url_for('contracts.edit', id=c.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                    {% if c.status == 'active' %}
+                    <form method="POST" action="{{ url_for('contracts.terminate', id=c.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger btn-delete" title="Chấm dứt"><i class="bi bi-x-lg"></i></button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-file-earmark-text"></i><p>Chưa có hợp đồng nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

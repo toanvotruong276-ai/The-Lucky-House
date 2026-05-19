@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Hóa đơn - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý hóa đơn{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <form method="GET" class="d-flex gap-8">
+        <select name="status" class="form-control" style="width:180px;" onchange="this.form.submit()">
+            <option value="">Tất cả</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Chưa thanh toán</option>
+            <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Đã thanh toán</option>
+            <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Quá hạn</option>
+        </select>
+    </form>
+    <a href="{{ url_for('invoices.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tạo hóa đơn</a>
+</div>
+<div class="card">
+    <div class="card-body table-wrapper">
+        {% if invoices %}
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Kỳ</th><th>Phòng</th><th>Khách thuê</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td>{{ inv.id }}</td>
+                <td>{{ inv.period_label }}</td>
+                <td><strong>{{ inv.contract.room.full_name }}</strong></td>
+                <td>{{ inv.contract.tenant.full_name }}</td>
+                <td><strong>{{ inv.total_amount | currency }}</strong></td>
+                <td><span class="badge badge-{{ inv.status_color }}">{{ inv.status_label }}</span></td>
+                <td class="d-flex gap-8">
+                    <a href="{{ url_for('invoices.detail', id=inv.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-eye"></i></a>
+                    {% if inv.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('invoices.pay', id=inv.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check"></i></button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-receipt"></i><p>Chưa có hóa đơn nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Phòng - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý phòng{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <form class="d-flex gap-8" method="GET">
+        <select name="property_id" class="form-control" style="width:180px;" onchange="this.form.submit()">
+            <option value="">Tất cả nhà</option>
+            {% for p in properties %}<option value="{{ p.id }}" {% if property_filter == p.id|string %}selected{% endif %}>Nhà số {{ p.house_number }}</option>{% endfor %}
+        </select>
+        <select name="status" class="form-control" style="width:150px;" onchange="this.form.submit()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="available" {% if status_filter == 'available' %}selected{% endif %}>Trống</option>
+            <option value="occupied" {% if status_filter == 'occupied' %}selected{% endif %}>Đang thuê</option>
+            <option value="maintenance" {% if status_filter == 'maintenance' %}selected{% endif %}>Bảo trì</option>
+        </select>
+    </form>
+    <div class="text-sm text-muted"><i class="bi bi-geo-alt"></i> KDC CITY LAND PARK HILL</div>
+</div>
+
+{% if grouped %}
+{% for g in grouped %}
+<div class="card mb-24" style="margin-bottom:20px;">
+    <div class="card-header" style="background:linear-gradient(135deg, #f8fafc, #eef2ff);">
+        <h2><i class="bi bi-house-door"></i> Nhà số {{ g.property.house_number }}</h2>
+        <div class="d-flex gap-8">
+            <span class="badge badge-success">{{ g.property.available_rooms }} trống</span>
+            <span class="badge badge-primary">{{ g.property.occupied_rooms }} thuê</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% for fd in g.floors %}
+        <div style="margin-bottom:12px;">
+            <div class="d-flex align-center gap-8 mb-16" style="margin-bottom:8px;">
+                <strong style="font-size:13px;color:var(--text-secondary);">
+                    {% if fd.floor.floor_order < 0 %}<i class="bi bi-arrow-down-circle"></i>{% elif fd.floor.floor_order == 0 %}<i class="bi bi-house"></i>{% else %}<i class="bi bi-layers"></i>{% endif %}
+                    {{ fd.floor.floor_name }}
+                </strong>
+            </div>
+            <div class="d-flex gap-12" style="flex-wrap:wrap;">
+                {% for room in fd.rooms %}
+                <div class="room-card {{ room.status }}" style="min-width:170px;flex:1;max-width:250px;">
+                    <div class="room-number">Phòng {{ room.room_label }}</div>
+                    <div><span class="badge badge-{{ room.status_color }}">{{ room.status_label }}</span></div>
+                    <div class="room-price" style="margin-top:4px;">{{ room.base_price | currency }}</div>
+                    {% if room.current_tenant %}
+                    <div class="text-sm" style="margin-top:2px;color:var(--primary);"><i class="bi bi-person"></i> {{ room.current_tenant.full_name }}</div>
+                    {% endif %}
+                    <div class="d-flex gap-8 mt-8" style="justify-content:center;">
+                        <a href="{{ url_for('rooms.edit', id=room.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not fd.rooms %}
+                <div class="text-sm text-muted">Không có phòng phù hợp</div>
+                {% endif %}
+            </div>
+        </div>
+        {% if not loop.last %}<hr style="border:none;border-top:1px dashed var(--border-color);margin:8px 0;">{% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card"><div class="card-body empty-state"><i class="bi bi-door-open"></i><p>Không có phòng nào.</p></div></div>
+{% endif %}
+{% endblock %}

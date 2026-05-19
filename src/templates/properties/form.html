@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Sửa' if property else 'Thêm' }} nhà - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}{{ 'Sửa nhà số ' + property.house_number if property else 'Thêm nhà mới' }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px;">
+    <div class="card-header">
+        <h2><i class="bi bi-geo-alt"></i> KDC CITY LAND PARK HILL</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Số nhà *</label>
+                <input type="text" name="house_number" class="form-control" value="{{ property.house_number if property else '' }}" placeholder="VD: 1, 2, 3, 10A..." required>
+            </div>
+
+            {% if not property %}
+            <!-- Chỉ hiện khi tạo mới -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Số lầu (không tính trệt)</label>
+                    <input type="number" name="num_floors" class="form-control" value="3" min="1" max="10">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Có hầm không?</label>
+                    <div style="padding:9px 0;">
+                        <label style="cursor:pointer;font-size:13px;">
+                            <input type="checkbox" name="has_basement" style="margin-right:6px;"> Có hầm (tầng hầm)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Giá thuê cơ bản (₫/tháng)</label>
+                    <input type="number" name="base_price" class="form-control" value="5000000" step="100000">
+                    <small class="text-muted">Hầm sẽ được tính 70% giá cơ bản</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Diện tích phòng (m²)</label>
+                    <input type="number" name="room_area" class="form-control" value="25" step="0.5">
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="margin-top:8px;">
+                <i class="bi bi-info-circle"></i>
+                Hệ thống sẽ tự động tạo các tầng và 2 phòng (A, B) cho mỗi tầng.
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label">Ghi chú</label>
+                <textarea name="description" class="form-control">{{ property.description if property else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-8">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {{ 'Cập nhật' if property else 'Thêm nhà' }}</button>
+                <a href="{{ url_for('properties.index') }}" class="btn btn-outline">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Sửa' if mr else 'Tạo' }} yêu cầu bảo trì - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}{{ 'Sửa yêu cầu bảo trì' if mr else 'Tạo yêu cầu bảo trì mới' }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:700px;">
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Phòng *</label>
+                    <select name="room_id" class="form-control" required>
+                        <option value="">-- Chọn phòng --</option>
+                        {% for r in rooms %}<option value="{{ r.id }}" {% if mr and mr.room_id == r.id %}selected{% endif %}>{{ r.full_name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Khách thuê</label>
+                    <select name="tenant_id" class="form-control">
+                        <option value="">-- Không chọn --</option>
+                        {% for t in tenants %}<option value="{{ t.id }}" {% if mr and mr.tenant_id == t.id %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tiêu đề *</label>
+                <input type="text" name="title" class="form-control" value="{{ mr.title if mr else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mô tả</label>
+                <textarea name="description" class="form-control">{{ mr.description if mr else '' }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Mức độ ưu tiên</label>
+                    <select name="priority" class="form-control">
+                        <option value="low" {% if mr and mr.priority == 'low' %}selected{% endif %}>Thấp</option>
+                        <option value="medium" {% if not mr or mr.priority == 'medium' %}selected{% endif %}>Trung bình</option>
+                        <option value="high" {% if mr and mr.priority == 'high' %}selected{% endif %}>Cao</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chi phí (₫)</label>
+                    <input type="number" name="cost" class="form-control" value="{{ mr.cost if mr else 0 }}">
+                </div>
+            </div>
+            {% if mr %}
+            <div class="form-group">
+                <label class="form-label">Trạng thái</label>
+                <select name="status" class="form-control">
+                    <option value="pending" {% if mr.status == 'pending' %}selected{% endif %}>Chờ xử lý</option>
+                    <option value="in_progress" {% if mr.status == 'in_progress' %}selected{% endif %}>Đang xử lý</option>
+                    <option value="completed" {% if mr.status == 'completed' %}selected{% endif %}>Hoàn thành</option>
+                </select>
+            </div>
+            {% endif %}
+            <div class="d-flex gap-8">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {{ 'Cập nhật' if mr else 'Tạo yêu cầu' }}</button>
+                <a href="{{ url_for('maintenance.index') }}" class="btn btn-outline">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

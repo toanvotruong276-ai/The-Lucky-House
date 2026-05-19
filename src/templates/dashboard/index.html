@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary"><i class="bi bi-houses"></i></div>
+        <div>
+            <div class="stat-value">{{ total_houses }}</div>
+            <div class="stat-label">Tổng số nhà</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon success"><i class="bi bi-check-circle"></i></div>
+        <div>
+            <div class="stat-value">{{ available_rooms }}</div>
+            <div class="stat-label">Phòng trống</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon info"><i class="bi bi-people"></i></div>
+        <div>
+            <div class="stat-value">{{ occupied_rooms }}</div>
+            <div class="stat-label">Đang thuê</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon warning"><i class="bi bi-cash-stack"></i></div>
+        <div>
+            <div class="stat-value">{{ monthly_revenue | currency }}</div>
+            <div class="stat-label">Doanh thu tháng này</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Revenue Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-graph-up"></i> Doanh thu 6 tháng gần nhất</h2>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-bell"></i> Cảnh báo</h2>
+        </div>
+        <div class="card-body">
+            {% if pending_invoices > 0 %}
+            <div class="alert alert-warning" style="margin-bottom:8px;">
+                <i class="bi bi-receipt"></i> {{ pending_invoices }} hóa đơn chưa thanh toán
+            </div>
+            {% endif %}
+            {% if overdue_invoices > 0 %}
+            <div class="alert alert-danger" style="margin-bottom:8px;">
+                <i class="bi bi-exclamation-triangle"></i> {{ overdue_invoices }} hóa đơn quá hạn
+            </div>
+            {% endif %}
+            {% if expiring_contracts %}
+            <div class="alert alert-info" style="margin-bottom:8px;">
+                <i class="bi bi-calendar-event"></i> {{ expiring_contracts|length }} hợp đồng sắp hết hạn
+            </div>
+            {% endif %}
+            {% if maintenance_rooms > 0 %}
+            <div class="alert alert-warning" style="margin-bottom:8px;">
+                <i class="bi bi-tools"></i> {{ maintenance_rooms }} phòng đang bảo trì
+            </div>
+            {% endif %}
+            {% if not pending_invoices and not overdue_invoices and not expiring_contracts and not maintenance_rooms %}
+            <div class="empty-state">
+                <i class="bi bi-check-circle" style="color:var(--success);"></i>
+                <p>Không có cảnh báo nào!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Expiring Contracts -->
+{% if expiring_contracts %}
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <h2><i class="bi bi-calendar-x"></i> Hợp đồng sắp hết hạn (30 ngày tới)</h2>
+    </div>
+    <div class="card-body table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>Phòng</th><th>Khách thuê</th><th>Ngày hết hạn</th><th>Còn lại</th></tr>
+            </thead>
+            <tbody>
+                {% for c in expiring_contracts %}
+                <tr>
+                    <td><strong>{{ c.room.full_name }}</strong></td>
+                    <td>{{ c.tenant.full_name }}</td>
+                    <td>{{ c.end_date.strftime('%d/%m/%Y') }}</td>
+                    <td><span class="badge badge-warning">{{ c.days_remaining }} ngày</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var ctx = document.getElementById('revenueChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels | tojson }},
+        datasets: [{
+            label: 'Doanh thu',
+            data: {{ chart_data | tojson }},
+            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+            borderColor: '#6366f1',
+            borderWidth: 1,
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { callback: function(v) { return v.toLocaleString() + ' đ'; } } }
+        }
+    }
+});
+</script>
+{% endblock %}

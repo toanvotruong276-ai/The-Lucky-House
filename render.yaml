@@ -1,0 +1,27 @@
+# Render.com Blueprint - THE LUCKY HOUSE
+# File này giúp deploy tự động khi push lên GitHub
+
+databases:
+  - name: lucky-house-db
+    plan: free
+    databaseName: lucky_house
+    user: admin
+
+services:
+  - type: web
+    name: the-lucky-house
+    plan: free
+    runtime: python
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 2 "src:create_app('production')"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lucky-house-db
+          property: connectionURI
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.13.13"

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Khách thuê - THE LUCKY HOUSE{% endblock %}
+{% block page_title %}Quản lý khách thuê{% endblock %}
+{% block content %}
+<div class="d-flex justify-between align-center mb-16">
+    <form method="GET" class="d-flex gap-8">
+        <input type="text" name="search" class="form-control" style="width:260px;" placeholder="Tìm theo tên, SĐT..." value="{{ search }}">
+        <button type="submit" class="btn btn-outline"><i class="bi bi-search"></i></button>
+    </form>
+    <a href="{{ url_for('tenants.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm khách</a>
+</div>
+<div class="card">
+    <div class="card-body table-wrapper">
+        {% if tenants %}
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Họ tên</th><th>SĐT</th><th>CCCD</th><th>Phòng hiện tại</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            {% for t in tenants %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><strong>{{ t.full_name }}</strong></td>
+                <td>{{ t.phone }}</td>
+                <td>{{ t.id_card or '—' }}</td>
+                <td>{% if t.current_room %}<span class="badge badge-primary">{{ t.current_room.room_number }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td class="d-flex gap-8">
+                    <a href="{{ url_for('tenants.edit', id=t.id) }}" class="btn btn-sm btn-outline"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="{{ url_for('tenants.delete', id=t.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger btn-delete"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-people"></i><p>Chưa có khách thuê nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
